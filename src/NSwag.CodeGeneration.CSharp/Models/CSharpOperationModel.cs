@@ -202,12 +202,28 @@ namespace NSwag.CodeGeneration.CSharp.Models
 
         /// <summary>Gets the security schemes mapped to this operation.</summary>
 		public List<Dictionary<string, IEnumerable<string>>> Security { get; private set; }
-
+        
         /// <summary>Checks if any authentication scheme are mapped to this operation.</summary>
         public bool HasSecurity { get { return GetHasSecurity(); } }
-
+        
         /// <summary>Gets a comma delimited list of authentication scheme names mapped to this operation.</summary>
         public string AuthenticationSchemes { get { return GetAuthenticationSchemes(); } }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance has response.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance has response; otherwise, <c>false</c>.
+        /// </value>
+        public bool HasResponse { get { return GetHasResponse(); } }
+
+        /// <summary>
+        /// Gets the response schemes.
+        /// </summary>
+        /// <value>
+        /// The response schemes.
+        /// </value>
+        public List<string> ResponseSchemes { get { return GetResponseSchemes(); } }
 
         /// <summary>Gets the name of the parameter variable.</summary>
         /// <param name="parameter">The parameter.</param>
@@ -257,9 +273,22 @@ namespace NSwag.CodeGeneration.CSharp.Models
             return new CSharpResponseModel(this, operation, statusCode, response, response == GetSuccessResponse().Value, exceptionSchema, generator, resolver, settings.CodeGeneratorSettings);
         }
 
+        /// <summary>
+        /// Gets the has security.
+        /// </summary>
+        /// <returns></returns>
         private bool GetHasSecurity()
         {
             return (Security.Count > 0);
+        }
+
+        /// <summary>
+        /// Gets the has response.
+        /// </summary>
+        /// <returns></returns>
+        private bool GetHasResponse()
+        {
+            return (_operation.Responses.Count > 0);
         }
 
         private string GetAuthenticationSchemes()
@@ -276,6 +305,22 @@ namespace NSwag.CodeGeneration.CSharp.Models
             }
 
             return authenticationSchemes;
+        }
+
+        /// <summary>
+        /// Gets the response schemes.
+        /// </summary>
+        /// <returns></returns>
+        private List<string> GetResponseSchemes()
+        {
+            List<string> responseSchemes = new List<string>();
+
+            foreach(KeyValuePair<string, SwaggerResponse> responseRecord in _operation.Responses)
+            {
+                responseSchemes.Add("/// <response code=\"" + responseRecord.Key + "\">" + responseRecord.Value.Description + "</response>");
+            }
+
+            return responseSchemes;
         }
     }
 }

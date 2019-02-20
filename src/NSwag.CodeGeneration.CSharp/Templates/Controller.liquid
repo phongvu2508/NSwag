@@ -11,8 +11,10 @@ public interface I{{ Class }}Controller
     /// <param name="{{ parameter.VariableName }}">{{ parameter.Description | csharpdocs }}</param>
 {%             endif -%}
 {%         endfor -%}
-{%         if operation.HasResultDescription -%}
-    /// <returns>{{ operation.ResultDescription | csharpdocs }}</returns>
+{%         if operation.HasResponse -%}
+{%             for reponse in operation.ResponseSchemes -%}
+    {{ reponse }}
+{%             endfor -%}
 {%         endif -%}
 {%         if operation.IsDeprecated -%}
     [System.Obsolete]
@@ -46,15 +48,20 @@ public partial class {{ Class }}Controller : {% if HasBaseClass %}{{ BaseClass }
     /// <param name="{{ parameter.VariableName }}">{{ parameter.Description | csharpdocs }}</param>
 {%             endif -%}
 {%         endfor -%}
-{%         if operation.HasResultDescription -%}
-    /// <returns>{{ operation.ResultDescription | csharpdocs }}</returns>
+{%         if operation.HasResponse -%}
+{%             for reponse in operation.ResponseSchemes -%}
+    {{ reponse }}
+{%             endfor -%}
 {%         endif -%}
 {%         if operation.IsDeprecated -%}
     [System.Obsolete]
 {%         endif -%}
     [{{ AspNetNamespace }}.Http{{ operation.HttpMethodUpper }}, {{ AspNetNamespace }}.Route("{{ operation.Path }}"{% if operation.HasRouteName %}, Name = "{{ operation.RouteName }}"{% endif %})]
 {%         if operation.HasSecurity -%}
-    [Microsoft.AspNetCore.Authorization.Authorize(AuthenticationSchemes = "{{ operation.AuthenticationSchemes }}")]
+    [{{ AspNetNamespace }}.Authorization.Authorize(AuthenticationSchemes = "{{ operation.AuthenticationSchemes }}")]
+{%         endif -%}
+{%         if operation.HasResult -%}
+    [ResponseType(typeof({{operation.SyncResultType}}))]
 {%         endif -%}
     public {% if operation.WrapResponse %}async System.Threading.Tasks.Task<HttpResponseMessage>{% else %}{{ operation.ResultType }}{% endif %} {{ operation.ActualOperationName }}({% for parameter in operation.Parameters %}{% if parameter.IsBody %}[{{ AspNetNamespace }}.FromBody] {% endif %}{{ parameter.Type }} {{ parameter.VariableName }}{% if GenerateOptionalParameters and parameter.IsOptional %} = null{% endif %}{% if parameter.IsLast == false or UseCancellationToken %}, {% endif %}{% endfor %}{% if UseCancellationToken %}System.Threading.CancellationToken cancellationToken{% endif %})
     {
