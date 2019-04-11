@@ -58,7 +58,7 @@ namespace NSwag.CodeGeneration.CSharp.Models
                 {
                     parameters = parameters
                         .OrderBy(p => p.Position ?? 0)
-                        .OrderBy(p => !p.IsRequired)
+                        .ThenBy(p => !p.IsRequired)
                         .ThenBy(p => p.Default == null).ToList();
                 }
                 else
@@ -77,6 +77,15 @@ namespace NSwag.CodeGeneration.CSharp.Models
                     _generator,
                     _resolver))
                 .ToList();
+            
+            foreach (var pair in operation.Responses)
+            {
+                var dict = new Dictionary<string, string>();
+                dict.Add("Code", pair.Key);
+                dict.Add("Value", pair.Value.Description);
+
+                ActualResponses.Add(dict);
+            }
 
             Security = operation.Security.Select(scheme => scheme as Dictionary<string, IEnumerable<string>>).ToList();
         }
@@ -126,9 +135,15 @@ namespace NSwag.CodeGeneration.CSharp.Models
         {
             get
             {
+                var actualResultType = SyncResultType;
+                if (UseActionResultType)
+                {
+                    actualResultType = "Microsoft.AspNetCore.Mvc.IActionResult<" + SyncResultType + ">";
+                }
+
                 return SyncResultType == "void"
                     ? "System.Threading.Tasks.Task"
-                    : "System.Threading.Tasks.Task<" + SyncResultType + ">";
+                    : "System.Threading.Tasks.Task<" + actualResultType + ">";
             }
         }
 
@@ -203,8 +218,14 @@ namespace NSwag.CodeGeneration.CSharp.Models
         /// <summary>Gets the security schemes mapped to this operation.</summary>
 		public List<Dictionary<string, IEnumerable<string>>> Security { get; private set; }
 
-		/// <summary>Checks if any authentication scheme are mapped to this operation.</summary>
-		public bool HasSecurity { get { return GetHasSecurity(); } }
+        /// <summary>Gets or sets the responses. </summary>
+        public List<Dictionary<string, string>> ActualResponses { get; private set; } = new List<Dictionary<string, string>>();
+
+        /// <summary>Checks if any authentication scheme are mapped to this operation.</summary>
+        public bool HasSecurity { get { return GetHasSecurity(); } }
+
+        /// <summary>Checks if any responses are mapped to this operation.</summary>
+        public bool HasResponses { get { return GetHasReponses(); } }
 
 		/// <summary>Gets a comma delimited list of authentication scheme names mapped to this operation.</summary>
 		public string AuthenticationSchemes { get { return GetAuthenticationSchemes(); } }
@@ -257,12 +278,31 @@ namespace NSwag.CodeGeneration.CSharp.Models
             return new CSharpResponseModel(this, operation, statusCode, response, response == GetSuccessResponse().Value, exceptionSchema, generator, resolver, settings.CodeGeneratorSettings);
         }
 
+        /// <summary>
+        /// Gets the has security.
+        /// </summary>
+        /// <returns></returns>
         private bool GetHasSecurity()
 		{
 			return (Security.Count > 0);
 		}
 
-		private string GetAuthenticationSchemes()
+        /// <summary>
+        /// Gets the has reponses.
+        /// </summary>
+        /// <returns></returns>
+        private bool GetHasReponses()
+        {
+            return (ActualResponses.Count() > 0);
+        }
+
+        /// <summary>
+        /// Gets the has Use ActionResult Type.
+        /// </summary>
+        //TODO: FORK the NJsonSchema.CodeGeneration.CSharp and add own setting for this
+        private bool UseActionResultType { get; } = true;
+
+        private string GetAuthenticationSchemes()
 		{
 			string authenticationSchemes = "";
 
