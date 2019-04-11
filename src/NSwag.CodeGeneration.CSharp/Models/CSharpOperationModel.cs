@@ -138,7 +138,7 @@ namespace NSwag.CodeGeneration.CSharp.Models
                 var actualResultType = SyncResultType;
                 if (UseActionResultType)
                 {
-                    actualResultType = "Microsoft.AspNetCore.Mvc.IActionResult<" + SyncResultType + ">";
+                    actualResultType = "Microsoft.AspNetCore.Mvc.ActionResult<" + SyncResultType + ">";
                 }
 
                 return SyncResultType == "void"
