@@ -50,13 +50,14 @@ namespace NSwag.CodeGeneration.CSharp.Models
             _generator = generator;
             _resolver = resolver;
 
-            var parameters = _operation.ActualParameters.ToList();
+            var parameters = _operation.ActualParameters.Where(p => p.Kind != SwaggerParameterKind.Header).ToList();
 
             if (settings.GenerateOptionalParameters)
             {
                 if (generator is SwaggerToCSharpControllerGenerator)
                 {
                     parameters = parameters
+                        
                         .OrderBy(p => p.Position ?? 0)
                         .ThenBy(p => !p.IsRequired)
                         .ThenBy(p => p.Default == null).ToList();
