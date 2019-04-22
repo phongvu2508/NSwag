@@ -36,7 +36,7 @@ public partial class {{ Class }}Controller : {% if HasBaseClass %}{{ BaseClass }
 
     public {{ Class }}Controller(I{{ Class }}Controller implementation)
     {
-        implementation = implementation;
+        this.implementation = implementation;
     }
 
 {%     for operation in Operations -%}
@@ -63,7 +63,7 @@ public partial class {{ Class }}Controller : {% if HasBaseClass %}{{ BaseClass }
     public {% if operation.WrapResponse %}async System.Threading.Tasks.Task<HttpResponseMessage>{% else %}{{ operation.ResultType }}{% endif %} {{ operation.ActualOperationName }}({% for parameter in operation.Parameters %}{% if parameter.IsBody %}[{{ AspNetNamespace }}.FromBody] {% endif %}{{ parameter.Type }} {{ parameter.VariableName }}{% if GenerateOptionalParameters and parameter.IsOptional %} = null{% endif %}{% if parameter.IsLast == false or UseCancellationToken %}, {% endif %}{% endfor %}{% if UseCancellationToken %}System.Threading.CancellationToken cancellationToken{% endif %})
     {
 {%         if operation.WrapResponse -%}
-        var result = await implementation.{{ operation.ActualOperationName }}Async({% for parameter in operation.Parameters %}{{ parameter.VariableName }}{% if parameter.IsLast == false or UseCancellationToken %}, {% endif %}{% endfor %}{% if UseCancellationToken %}cancellationToken{% endif %}).ConfigureAwait(false);
+        var result = await this.implementation.{{ operation.ActualOperationName }}Async({% for parameter in operation.Parameters %}{{ parameter.VariableName }}{% if parameter.IsLast == false or UseCancellationToken %}, {% endif %}{% endfor %}{% if UseCancellationToken %}cancellationToken{% endif %}).ConfigureAwait(false);
 
         var status = (System.Net.HttpStatusCode)result.StatusCode;
         HttpResponseMessage response = Request.CreateResponse(status{% if operation.UnwrappedResultType != "void" %}, result.Result{% endif %});
@@ -73,7 +73,7 @@ public partial class {{ Class }}Controller : {% if HasBaseClass %}{{ BaseClass }
 
         return response;
 {%         else -%}
-        return implementation.{{ operation.ActualOperationName }}Async({% for parameter in operation.Parameters %}{{ parameter.VariableName }}{% if parameter.HasDefault %} ?? {{parameter.Default}}{% endif %}{% if parameter.IsLast == false or UseCancellationToken %}, {% endif %}{% endfor %}{% if UseCancellationToken %}cancellationToken{% endif %});
+        return this.implementation.{{ operation.ActualOperationName }}Async({% for parameter in operation.Parameters %}{{ parameter.VariableName }}{% if parameter.HasDefault %} ?? {{parameter.Default}}{% endif %}{% if parameter.IsLast == false or UseCancellationToken %}, {% endif %}{% endfor %}{% if UseCancellationToken %}cancellationToken{% endif %});
 {%         endif -%}
     }
 
