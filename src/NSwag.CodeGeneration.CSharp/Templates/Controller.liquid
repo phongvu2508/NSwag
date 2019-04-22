@@ -27,7 +27,7 @@ public interface I{{ Class }}Controller
 {% endif -%}
 [System.CodeDom.Compiler.GeneratedCode("NSwag", "{{ ToolchainVersion }}")]
 {% if HasBasePath -%}
-[{{ AspNetNamespace }}.RoutePrefix("{{ BasePath }}")]
+[{{ AspNetNamespace }}.Route("{{ BasePath }}")]
 {% endif -%}
 {% if GeneratePartialControllers -%}
 public partial class {{ Class }}Controller : {% if HasBaseClass %}{{ BaseClass }}{% else %}{{ AspNetNamespace }}.ApiController{% endif %}
