@@ -16,6 +16,9 @@ public interface I{{ Class }}Controller
     /// <response code="{{ response["Code"] }}">{{ response["Value"] }}</response>
 {%             endfor -%}
 {%         endif -%}
+{%         if operation.HasResultDescription -%}
+    /// <returns>{{ operation.ResultDescription | csharpdocs }}</returns>
+{%         endif -%}
 {%         if operation.IsDeprecated -%}
     [System.Obsolete]
 {%         endif -%}
@@ -52,6 +55,9 @@ public partial class {{ Class }}Controller : {% if HasBaseClass %}{{ BaseClass }
 {%             for response in operation.ActualResponses -%}
     /// <response code="{{ response["Code"] }}">{{ response["Value"] }}</response>
 {%             endfor -%}
+{%         endif -%}
+{%         if operation.HasResultDescription -%}
+    /// <returns>{{ operation.ResultDescription | csharpdocs }}</returns>
 {%         endif -%}
 {%         if operation.IsDeprecated -%}
     [System.Obsolete]
@@ -95,6 +101,9 @@ public abstract class {{ Class }}ControllerBase : {% if HasBaseClass %}{{ BaseCl
 {%             for response in operation.ActualResponses -%}
     /// <response code="{{ response["Code"] }}">{{ response["Value"] }}</response>
 {%             endfor -%}
+{%         endif -%}
+{%         if operation.HasResultDescription -%}
+    /// <returns>{{ operation.ResultDescription | csharpdocs }}</returns>
 {%         endif -%}
 {%         if operation.IsDeprecated -%}
     [System.Obsolete]
