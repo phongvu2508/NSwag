@@ -36,22 +36,24 @@ namespace NSwag.CodeGeneration.OperationNameGenerators
         /// <returns>The operation name.</returns>
         public virtual string GetOperationName(SwaggerDocument document, string path, string httpMethod, SwaggerOperation operation)
         {
-            var operationName = ConvertPathToName(path);
+            return operation.OperationId;
 
-            var hasNameConflict = document.Paths
-                .SelectMany(pair => pair.Value.Select(p => new { Path = pair.Key.Trim('/'), HttpMethod = p.Key, Operation = p.Value }))
-                .Where(op =>
-                    GetClientName(document, op.Path, op.HttpMethod, op.Operation) == GetClientName(document, path, httpMethod, operation) &&
-                    ConvertPathToName(op.Path) == operationName
-                ).ToList()
-                .Count > 1;
+            ////var operationName = ConvertPathToName(path);
 
-            if (hasNameConflict)
-            {
-                operationName += ConversionUtilities.ConvertToUpperCamelCase(httpMethod, false);
-            }
+            ////var hasNameConflict = document.Paths
+            ////    .SelectMany(pair => pair.Value.Select(p => new { Path = pair.Key.Trim('/'), HttpMethod = p.Key, Operation = p.Value }))
+            ////    .Where(op =>
+            ////        GetClientName(document, op.Path, op.HttpMethod, op.Operation) == GetClientName(document, path, httpMethod, operation) &&
+            ////        ConvertPathToName(op.Path) == operationName
+            ////    ).ToList()
+            ////    .Count > 1;
 
-            return operationName;
+            ////if (hasNameConflict)
+            ////{
+            ////    operationName += ConversionUtilities.ConvertToUpperCamelCase(httpMethod, false);
+            ////}
+
+            ////return operationName;
         }
 
         /// <summary>Converts the path to an operation name.</summary>
