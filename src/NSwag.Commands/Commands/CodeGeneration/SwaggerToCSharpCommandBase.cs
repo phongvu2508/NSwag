@@ -252,6 +252,13 @@ namespace NSwag.Commands.CodeGeneration
             set { Settings.CSharpGeneratorSettings.ExcludedTypeNames = value; }
         }
 
+        [Argument(Name = "ExcludedParameterNames", IsRequired = false, Description = "The globally excluded parameter names.")]
+        public string[] ExcludedParameterNames
+        {
+            get { return Settings.ExcludedParameterNames; }
+            set { Settings.ExcludedParameterNames = value; }
+        }
+
         [Argument(Name = "HandleReferences", IsRequired = false, Description = "Use preserve references handling (All) in the JSON serializer (default: false).")]
         public bool HandleReferences
         {
@@ -302,6 +309,13 @@ namespace NSwag.Commands.CodeGeneration
         {
             get { return Settings.CSharpGeneratorSettings.InlineNamedTuples; }
             set { Settings.CSharpGeneratorSettings.InlineNamedTuples = value; }
+        }
+
+        [Argument(Name = "GenerateDtoTypes", IsRequired = false, Description = "Specifies whether to generate DTO classes.")]
+        public bool GenerateDtoTypes
+        {
+            get { return Settings.GenerateDtoTypes; }
+            set { Settings.GenerateDtoTypes = value; }
         }
     }
 }

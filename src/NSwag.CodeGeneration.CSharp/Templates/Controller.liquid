@@ -30,7 +30,11 @@ public interface I{{ Class }}Controller
 {% endif -%}
 [System.CodeDom.Compiler.GeneratedCode("NSwag", "{{ ToolchainVersion }}")]
 {% if HasBasePath -%}
+{%     if IsAspNetCore -%}
 [{{ AspNetNamespace }}.Route("{{ BasePath }}")]
+{%     else -%}
+[{{ AspNetNamespace }}.RoutePrefix("{{ BasePath }}")]
+{%     endif -%}
 {% endif -%}
 {% if GeneratePartialControllers -%}
 public partial class {{ Class }}Controller : {% if HasBaseClass %}{{ BaseClass }}{% else %}{{ AspNetNamespace }}.ApiController{% endif %}
@@ -66,7 +70,7 @@ public partial class {{ Class }}Controller : {% if HasBaseClass %}{{ BaseClass }
     {%         if operation.HasSecurity -%}
     [Microsoft.AspNetCore.Authorization.Authorize(AuthenticationSchemes = "{{ operation.AuthenticationSchemes }}")]
 {%         endif -%}
-    public {% if operation.WrapResponse %}async System.Threading.Tasks.Task<HttpResponseMessage>{% else %}{{ operation.ResultType }}{% endif %} {{ operation.ActualOperationName }}({% for parameter in operation.Parameters %}{% if parameter.IsBody %}[{{ AspNetNamespace }}.FromBody] {% endif %}{{ parameter.Type }} {{ parameter.VariableName }}{% if GenerateOptionalParameters and parameter.IsOptional %} = null{% endif %}{% if parameter.IsLast == false or UseCancellationToken %}, {% endif %}{% endfor %}{% if UseCancellationToken %}System.Threading.CancellationToken cancellationToken{% endif %})
+    public {% if operation.WrapResponse %}async System.Threading.Tasks.Task<HttpResponseMessage>{% else %}{{ operation.ResultType }}{% endif %} {{ operation.ActualOperationName }}({% for parameter in operation.Parameters %}{% if parameter.IsBody %}[{{ AspNetNamespace }}.FromBody] {% endif %}{% if GenerateModelValidationAttributes and parameter.IsRequired %}[{{RequiredAttributeType}}] {% endif %}{{ parameter.Type }} {{ parameter.VariableName }}{% if GenerateOptionalParameters and parameter.IsOptional %} = null{% endif %}{% if parameter.IsLast == false or UseCancellationToken %}, {% endif %}{% endfor %}{% if UseCancellationToken %}System.Threading.CancellationToken cancellationToken{% endif %})
     {
 {%         if operation.WrapResponse -%}
         var result = await this.implementation.{{ operation.ActualOperationName }}Async({% for parameter in operation.Parameters %}{{ parameter.VariableName }}{% if parameter.IsLast == false or UseCancellationToken %}, {% endif %}{% endfor %}{% if UseCancellationToken %}cancellationToken{% endif %}).ConfigureAwait(false);
@@ -109,7 +113,7 @@ public abstract class {{ Class }}ControllerBase : {% if HasBaseClass %}{{ BaseCl
     [System.Obsolete]
 {%         endif -%}
     [{{ AspNetNamespace }}.Http{{ operation.HttpMethodUpper }}, {{ AspNetNamespace }}.Route("{{ operation.Path }}"{% if operation.HasRouteName %}, Name = "{{ operation.RouteName }}"{% endif %})]
-    public abstract {%  if operation.WrapResponse %}System.Threading.Tasks.Task<System.Net.Http.HttpResponseMessage>{% else %}{{ operation.ResultType }}{% endif %} {{ operation.ActualOperationName }}({% for parameter in operation.Parameters %}{% if parameter.IsBody %}[{{ AspNetNamespace }}.FromBody] {% endif %}{{ parameter.Type }} {{ parameter.VariableName }}{% if GenerateOptionalParameters and parameter.IsOptional %} = null{% endif %}{% if parameter.IsLast == false or UseCancellationToken %}, {% endif %}{% endfor %}{% if UseCancellationToken %}System.Threading.CancellationToken cancellationToken{% endif %});
+    public abstract {%  if operation.WrapResponse %}System.Threading.Tasks.Task<System.Net.Http.HttpResponseMessage>{% else %}{{ operation.ResultType }}{% endif %} {{ operation.ActualOperationName }}({% for parameter in operation.Parameters %}{% if parameter.IsBody %}[{{ AspNetNamespace }}.FromBody] {% endif %}{% if GenerateModelValidationAttributes and parameter.IsRequired %}[{{ RequiredAttributeType }}] {% endif %}{{ parameter.Type }} {{ parameter.VariableName }}{% if GenerateOptionalParameters and parameter.IsOptional %} = null{% endif %}{% if parameter.IsLast == false or UseCancellationToken %}, {% endif %}{% endfor %}{% if UseCancellationToken %}System.Threading.CancellationToken cancellationToken{% endif %});
 
 {%     endfor -%}
 }

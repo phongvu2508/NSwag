@@ -76,6 +76,14 @@ namespace NSwag.Commands.SwaggerGeneration
             set => Settings.GenerateKnownTypes = value;
         }
 
+        [Argument(Name = "GenerateEnumMappingDescription", IsRequired = false, 
+            Description = "Generate a description with number to enum name mappings (for integer enums only, default: false).")]
+        public bool GenerateEnumMappingDescription
+        {
+            get => Settings.GenerateEnumMappingDescription;
+            set => Settings.GenerateEnumMappingDescription = value;
+        }
+
         [Argument(Name = "GenerateXmlObjects", IsRequired = false, Description = "Generate xmlObject representation for definitions (default: false).")]
         public bool GenerateXmlObjects
         {
@@ -89,6 +97,13 @@ namespace NSwag.Commands.SwaggerGeneration
         {
             get => Settings.GenerateAbstractProperties;
             set => Settings.GenerateAbstractProperties = value;
+        }
+
+        [Argument(Name = "GenerateAbstractSchemas", IsRequired = false, Description = "Generate the x-abstract flag on schemas (default: true).")]
+        public bool GenerateAbstractSchemas
+        {
+            get => Settings.GenerateAbstractSchemas;
+            set => Settings.GenerateAbstractSchemas = value;
         }
 
         [Argument(Name = "IgnoreObsoleteProperties", IsRequired = false, Description = "Ignore properties with the ObsoleteAttribute (default: false).")]

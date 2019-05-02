@@ -54,6 +54,7 @@ namespace NSwag.CodeGeneration.CSharp.Models
 
             if (settings.GenerateOptionalParameters)
             {
+                // TODO: Move to CSharpControllerOperationModel
                 if (generator is SwaggerToCSharpControllerGenerator)
                 {
                     parameters = parameters
@@ -71,12 +72,13 @@ namespace NSwag.CodeGeneration.CSharp.Models
                 }
             }
 
-            Parameters = parameters.Select(parameter =>
-                new CSharpParameterModel(parameter.Name, GetParameterVariableName(parameter, _operation.Parameters),
-                    ResolveParameterType(parameter), parameter, parameters,
-                    _settings.CodeGeneratorSettings,
-                    _generator,
-                    _resolver))
+            Parameters = parameters
+                .Select(parameter =>
+                    new CSharpParameterModel(parameter.Name, GetParameterVariableName(parameter, _operation.Parameters),
+                        ResolveParameterType(parameter), parameter, parameters,
+                        _settings.CodeGeneratorSettings,
+                        _generator,
+                        _resolver))
                 .ToList();
             
             foreach (var pair in operation.Responses)
@@ -158,7 +160,7 @@ namespace NSwag.CodeGeneration.CSharp.Models
 
                 var response = _operation.ActualResponses.Single(r => !HttpUtilities.IsSuccessStatusCode(r.Key));
                 var isNullable = response.Value.IsNullable(_settings.CodeGeneratorSettings.SchemaType);
-                return _generator.GetTypeName(response.Value.GetActualResponseSchema(_operation), isNullable, "Exception");
+                return _generator.GetTypeName(response.Value.Schema, isNullable, "Exception");
             }
         }
 
@@ -246,18 +248,18 @@ namespace NSwag.CodeGeneration.CSharp.Models
         /// <returns>The parameter type name.</returns>
         protected override string ResolveParameterType(SwaggerParameter parameter)
         {
+            if (parameter.IsBinaryBodyParameter)
+            {
+                return "System.IO.Stream";
+            }
+
             var schema = parameter.ActualSchema;
-            if (schema.Type == JsonObjectType.File)
+            if (schema.IsBinary)
             {
                 if (parameter.CollectionFormat == SwaggerParameterCollectionFormat.Multi && !schema.Type.HasFlag(JsonObjectType.Array))
                     return "System.Collections.Generic.IEnumerable<FileParameter>";
 
                 return "FileParameter";
-            }
-
-            if (parameter.IsBinaryBodyParameter)
-            {
-                return "System.IO.Stream";
             }
 
             return base.ResolveParameterType(parameter)

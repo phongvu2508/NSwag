@@ -7,7 +7,6 @@
 //-----------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -40,8 +39,6 @@ namespace NSwag.SwaggerGeneration.AspNetCore.Processors
             if (!(operationProcessorContext is AspNetCoreOperationProcessorContext context))
                 return false;
 
-            var parameter = context.MethodInfo.ReturnParameter;
-
             var responseTypeAttributes = context.MethodInfo.GetCustomAttributes()
                 .Where(a => a.GetType().Name == "ResponseTypeAttribute" ||
                             a.GetType().Name == "SwaggerResponseAttribute" ||
@@ -51,22 +48,10 @@ namespace NSwag.SwaggerGeneration.AspNetCore.Processors
                             a.GetType().Name == "SwaggerDefaultResponseAttribute"))
                 .ToList();
 
-            var operation = context.OperationDescription.Operation;
-            foreach (var requestFormat in context.ApiDescription.SupportedRequestFormats)
-            {
-                if (operation.Consumes == null)
-                    operation.Consumes = new List<string>();
-
-                if (!operation.Consumes.Contains(requestFormat.MediaType, StringComparer.OrdinalIgnoreCase))
-                {
-                    operation.Consumes.Add(requestFormat.MediaType);
-                }
-            }
-
             if (responseTypeAttributes.Count > 0)
             {
                 // if SwaggerResponseAttribute \ ResponseTypeAttributes are present, we'll only use those.
-                await ProcessResponseTypeAttributes(context, parameter, responseTypeAttributes);
+                await ProcessResponseTypeAttributes(context, responseTypeAttributes);
             }
             else
             {
@@ -97,17 +82,6 @@ namespace NSwag.SwaggerGeneration.AspNetCore.Processors
                     }
 
                     context.OperationDescription.Operation.Responses[httpStatusCode] = response;
-
-                    if (operation.Produces == null)
-                        operation.Produces = new List<string>();
-
-                    foreach (var responseFormat in apiResponse.ApiResponseFormats)
-                    {
-                        if (!operation.Produces.Contains(responseFormat.MediaType, StringComparer.OrdinalIgnoreCase))
-                        {
-                            operation.Produces.Add(responseFormat.MediaType);
-                        }
-                    }
                 }
             }
 
@@ -118,26 +92,13 @@ namespace NSwag.SwaggerGeneration.AspNetCore.Processors
                     IsNullableRaw = true,
                     Schema = new JsonSchema4
                     {
-                        Type = JsonObjectType.File
+                        Type = _settings.SchemaType == SchemaType.Swagger2 ? JsonObjectType.File : JsonObjectType.String,
+                        Format = _settings.SchemaType == SchemaType.Swagger2 ? null : JsonFormatStrings.Binary,
                     }
                 };
             }
 
-            var successXmlDescription = await parameter.GetDescriptionAsync(parameter.GetCustomAttributes())
-                .ConfigureAwait(false) ?? string.Empty;
-            
-            if (!string.IsNullOrEmpty(successXmlDescription))
-            {
-                foreach (var response in context.OperationDescription.Operation.Responses
-                    .Where(r => HttpUtilities.IsSuccessStatusCode(r.Key)))
-                {
-                    if (!string.IsNullOrEmpty(response.Value.Description))
-                    {
-                        response.Value.Description = successXmlDescription;
-                    }
-                }
-            }
-
+            await UpdateResponseDescriptionAsync(context);
             return true;
         }
 
