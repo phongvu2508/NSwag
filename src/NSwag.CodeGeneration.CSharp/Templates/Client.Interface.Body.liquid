@@ -1,1 +1,9 @@
-﻿
+﻿{% if UseBaseUrl and GenerateBaseUrlProperty -%}
+/// <summary>The based url for API client</summary>
+string BaseUrl { get; }
+{% endif -%}
+
+{%     if InjectHttpClient -%}
+/// <summary>The injected HttpClient</summary>
+{{ HttpClientType }} HttpClient { get; }
+{%     endif -%}

@@ -1,6 +1,7 @@
 [System.CodeDom.Compiler.GeneratedCode("NSwag", "{{ ToolchainVersion }}")]
 {{ ClientClassAccessModifier }} partial class {{ Class }} {% if HasBaseType %}: {% endif %}{% if HasBaseClass %}{{ BaseClass }}{% if GenerateClientInterfaces %}, {% endif %}{% endif %}{% if GenerateClientInterfaces %}I{{ Class }}{% endif %}
 {
+    private readonly Microsoft.Extensions.Configuration.IConfiguration _configuration;
 {% if UseBaseUrl and GenerateBaseUrlProperty -%}
     private string _baseUrl = "{{ BaseUrl }}";
 {% endif -%}
@@ -10,22 +11,25 @@
     private System.Lazy<Newtonsoft.Json.JsonSerializerSettings> _settings;
 
 {% if HasConfigurationClass -%}
-    public {{ Class }}({{ ConfigurationClass }} configuration{% if InjectHttpClient %}, {{ HttpClientType }} httpClient{% endif %}) : base(configuration)
+    public {{ Class }}({{ ConfigurationClass }} configuration{% if InjectHttpClient %}, {{ HttpClientType }} httpClient{% endif %}, Microsoft.Extensions.Configuration.IConfiguration configuration) : base(configuration)
     {
+        _configuration = configuration;
 {%     if InjectHttpClient -%}
         _httpClient = httpClient; 
 {%     endif -%}
 {% elseif UseBaseUrl and HasBaseUrl == false -%}
-    public {{ Class }}(string baseUrl{% if InjectHttpClient -%}, {{ HttpClientType }} httpClient{% endif %})
+    public {{ Class }}(string baseUrl{% if InjectHttpClient -%}, {{ HttpClientType }} httpClient{% endif %}, Microsoft.Extensions.Configuration.IConfiguration configuration)
     {
-        BaseUrl = baseUrl; 
+        _configuration = configuration;
+        BaseUrl = baseUrl;
 {%     if InjectHttpClient -%}
         _httpClient = httpClient; 
 {%     endif -%}
 {% elseif InjectHttpClient -%}
-    public {{ Class }}({{ HttpClientType }} httpClient)
+    public {{ Class }}({{ HttpClientType }} httpClient, Microsoft.Extensions.Configuration.IConfiguration configuration)
     {
-        _httpClient = httpClient; 
+        _configuration = configuration;
+        _httpClient = httpClient;
 {% else -%}
     public {{ Class }}()
     {
@@ -39,18 +43,30 @@
             UpdateJsonSerializerSettings(settings);
             return settings;
         });
+
+        PrepareEnvironment();
     }
 
 {% if UseBaseUrl and GenerateBaseUrlProperty -%}
+    /// <summary>The based url for API client</summary>
     public string BaseUrl 
     {
         get { return _baseUrl; }
         set { _baseUrl = value; }
     }
-
 {% endif -%}
+
+{%     if InjectHttpClient -%}
+    /// <summary>The injected HttpClient</summary>
+    public {{ HttpClientType }} HttpClient 
+    {
+        get { return _httpClient; }
+    }
+{%     endif -%}
+
     {% if ExposeJsonSerializerSettings %}public{% else %}protected{% endif %} Newtonsoft.Json.JsonSerializerSettings JsonSerializerSettings { get { return _settings.Value; } }
 
+    partial void PrepareEnvironment();
 {% if GenerateUpdateJsonSerializerSettingsMethod -%}
     partial void UpdateJsonSerializerSettings(Newtonsoft.Json.JsonSerializerSettings settings);
 {% endif -%}

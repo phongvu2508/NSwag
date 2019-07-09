@@ -19,7 +19,8 @@ namespace NSwag.CodeGeneration.CSharp
         public SwaggerToCSharpControllerGeneratorSettings()
         {
             ClassName = "{controller}";
-            CSharpGeneratorSettings.ArrayType = "System.Collections.Generic.List";
+            CSharpGeneratorSettings.ArrayType = "System.Collections.Generic.IList";
+            CSharpGeneratorSettings.ArrayInstanceType = "System.Collections.Generic.List";
             ControllerStyle = CSharpControllerStyle.Partial;
             ControllerTarget = CSharpControllerTarget.AspNetCore;
             RouteNamingStrategy = CSharpControllerRouteNamingStrategy.None;

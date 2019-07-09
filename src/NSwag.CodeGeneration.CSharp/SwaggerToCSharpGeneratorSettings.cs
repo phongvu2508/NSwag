@@ -48,8 +48,8 @@ namespace NSwag.CodeGeneration.CSharp
                 typeof(SwaggerToCSharpGeneratorSettings).GetTypeInfo().Assembly,
             });
 
-            ResponseArrayType = "System.Collections.Generic.ICollection";
-            ResponseDictionaryType = "System.Collections.Generic.IDictionary";
+            ResponseArrayType = "System.Collections.ObjectModel.Collection";
+            ResponseDictionaryType = "System.Collections.Generic.Dictionary";
 
             ParameterArrayType = "System.Collections.Generic.IEnumerable";
             ParameterDictionaryType = "System.Collections.Generic.IDictionary";
