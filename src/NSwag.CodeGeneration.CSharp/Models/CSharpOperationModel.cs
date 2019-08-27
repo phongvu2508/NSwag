@@ -230,8 +230,13 @@ namespace NSwag.CodeGeneration.CSharp.Models
         /// <summary>Checks if any responses are mapped to this operation.</summary>
         public bool HasResponses { get { return GetHasReponses(); } }
 
-		/// <summary>Gets a comma delimited list of authentication scheme names mapped to this operation.</summary>
-		public string AuthenticationSchemes { get { return GetAuthenticationSchemes(); } }
+        /// <summary>
+        /// Gets a value indicating whether this instance has authentication schemes.
+        /// </summary>
+        public bool HasAuthenticationSchemes { get { return AuthenticationSchemes != "simple"; } }
+
+        /// <summary>Gets a comma delimited list of authentication scheme names mapped to this operation.</summary>
+        public string AuthenticationSchemes { get { return GetAuthenticationSchemes(); } }
 
         /// <summary>Gets the name of the parameter variable.</summary>
         /// <param name="parameter">The parameter.</param>

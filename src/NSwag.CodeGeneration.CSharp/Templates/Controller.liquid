@@ -61,8 +61,12 @@ public partial class {{ Class }}Controller : {% if HasBaseClass %}{{ BaseClass }
 {%         endif -%}
     [{{ AspNetNamespace }}.Http{{ operation.HttpMethodUpper }}, {{ AspNetNamespace }}.Route("{{ operation.Path }}"{% if operation.HasRouteName %}, Name = "{{ operation.RouteName }}"{% endif %})]
     {%         if operation.HasSecurity -%}
+    {%         if operation.HasAuthenticationSchemes -%}
     [Microsoft.AspNetCore.Authorization.Authorize(AuthenticationSchemes = "{{ operation.AuthenticationSchemes }}")]
-{%         endif -%}
+    {%         else -%}
+    [Microsoft.AspNetCore.Authorization.Authorize]
+    {%         endif -%}
+    {%         endif -%}
     public {% if operation.WrapResponse %}async System.Threading.Tasks.Task<HttpResponseMessage>{% else %}{{ operation.ResultType }}{% endif %} {{ operation.ActualOperationName }}({% for parameter in operation.Parameters %}{% if parameter.IsBody %}[{{ AspNetNamespace }}.FromBody] {% endif %}{% if GenerateModelValidationAttributes and parameter.IsRequired %}[{{RequiredAttributeType}}] {% endif %}{{ parameter.Type }} {{ parameter.VariableName }}{% if GenerateOptionalParameters and parameter.IsOptional %} = null{% endif %}{% if parameter.IsLast == false or UseCancellationToken %}, {% endif %}{% endfor %}{% if UseCancellationToken %}System.Threading.CancellationToken cancellationToken{% endif %})
     {
 {%         if operation.WrapResponse -%}
